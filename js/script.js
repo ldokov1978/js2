@@ -87,11 +87,15 @@ class Cart {
   }
 
   pushItems(items) {
+    let count = 0;
     this.cart.push(items);
-    console.log(this.cart.length);
+    //console.log(this.cart.length);
     const cartButton = document.querySelector('.cart-button');
-    console.log (this.cart);
-    cartButton.innerHTML = `Товаров в корзине: ${this.cart.length}`;
+    //console.log (this.cart);
+    this.cart.forEach ((item) => {
+      count += parseFloat(item.price);
+    });
+    cartButton.innerHTML = `Товаров в корзине: ${this.cart.length} на сумму: ${count} &euro;`;
   }
 }
 
