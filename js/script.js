@@ -14,13 +14,26 @@ class GoodsList {
   constructor() {
     this.goods = [];
   }
+
   fetchGoods() {
-    this.goods = [
-      { title: 'Shirt', price: 150 },
-      { title: 'Socks', price: 50 },
-      { title: 'Jacket', price: 350 },
-      { title: 'Shoes', price: 250 },
-    ];
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', './JSON/goods.json');
+      xhr.responseType = 'text';
+      xhr.onload = () => resolve(xhr.response);
+      xhr.onerror = () => reject(xhr.statusText);
+      xhr.send();
+
+      resolve = (content) => {
+        this.goods = JSON.parse(content);
+        this.render('.goods-list');
+        this.summ('.header');
+      };
+
+      reject = (e) => {
+        console.log(e);
+      }
+    });
   }
 
   render(selector = 'body') {
@@ -66,26 +79,20 @@ class Cart {
 }
 
 window.onload = () => {
-  const list = new GoodsList();
-  list.fetchGoods();
-  list.render('.goods-list');
-  list.summ('.header');
+  new GoodsList().fetchGoods();
 
-
-
-  const goodList = document.querySelector('.goods-list');
-  const goodItems = goodList.querySelectorAll('.goods-item');
+  const goodItems = document.querySelectorAll('.goods-item');
 
   goodItems.forEach((item) => {
     item.addEventListener('click', (e) => {
       const dataTitle = e.currentTarget.getAttribute('data-title');
       const dataPrice = e.currentTarget.getAttribute('data-price');
 
-      const cartItem = new CartItem (dataTitle, dataPrice).fetchItem();
-      console.log (cartItem);
+      const cartItem = new CartItem(dataTitle, dataPrice).fetchItem();
+      console.log(cartItem);
 
-      const cart = new Cart (cartItem);
-      console.log (cart.pushItems());
+      const cart = new Cart(cartItem);
+      console.log(cart.pushItems());
     })
   });
 
