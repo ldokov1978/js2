@@ -28,6 +28,7 @@ class GoodsList {
         this.goods = JSON.parse(content);
         this.render('.goods-list');
         this.summ('.header');
+        this.goodsSelect('.goods-item');
       };
 
       reject = (e) => {
@@ -55,6 +56,19 @@ class GoodsList {
     header.insertAdjacentHTML('afterbegin', `<div class="sum-goods">Суммарная стоимость всех товаров: ${sum} &euro; </div>`);
   }
 
+  goodsSelect(selector = 'body') {
+    const cart = new Cart();
+    const goodItems = document.querySelectorAll(selector);
+    goodItems.forEach((item) => {
+      item.addEventListener('click', (e) => {
+        const dataTitle = e.currentTarget.getAttribute('data-title');
+        const dataPrice = e.currentTarget.getAttribute('data-price');
+        const cartItem = new CartItem(dataTitle, dataPrice).fetchItem();
+        cart.pushItems(cartItem);
+      })
+    });
+  }
+
 }
 
 class CartItem {
@@ -68,32 +82,18 @@ class CartItem {
 }
 
 class Cart {
-  constructor(items) {
+  constructor() {
     this.cart = [];
-    this.items = items;
   }
 
-  pushItems() {
-    this.cart.push(this.items);
+  pushItems(items) {
+    this.cart.push(items);
+    console.log(this.cart.length);
+    const cartButton = document.querySelector('.cart-button');
+    cartButton.innerHTML = `Товаров в корзине: ${this.cart.length}`;
   }
 }
 
 window.onload = () => {
   new GoodsList().fetchGoods();
-
-  const goodItems = document.querySelectorAll('.goods-item');
-
-  goodItems.forEach((item) => {
-    item.addEventListener('click', (e) => {
-      const dataTitle = e.currentTarget.getAttribute('data-title');
-      const dataPrice = e.currentTarget.getAttribute('data-price');
-
-      const cartItem = new CartItem(dataTitle, dataPrice).fetchItem();
-      console.log(cartItem);
-
-      const cart = new Cart(cartItem);
-      console.log(cart.pushItems());
-    })
-  });
-
 };
