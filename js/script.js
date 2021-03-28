@@ -91,7 +91,7 @@ class Cart {
     this.cart.push(items);
     //console.log(this.cart.length);
     const cartButton = document.querySelector('.cart-button');
-    //console.log (this.cart);
+    console.log (this.cart);
     this.cart.forEach ((item) => {
       count += parseFloat(item.price);
     });
