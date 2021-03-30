@@ -11,30 +11,37 @@ class GoodsItem {
 }
 
 class GoodsList {
-  constructor() {
+  constructor(method, path) {
+    this.method = method;
+    this.path = path;
     this.goods = [];
   }
 
   fetchGoods() {
-    return new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', './JSON/goods.json');
+      xhr.open(this.method, this.path);
       xhr.responseType = 'text';
-      xhr.onload = () => resolve(xhr.response);
-      xhr.onerror = () => reject(xhr.statusText);
-      xhr.send();
-
-      resolve = (content) => {
-        this.goods = JSON.parse(content);
-        this.render('.goods-list');
-        this.summ('.header');
-        this.goodsSelect('.goods-item');
-      };
-
-      reject = (e) => {
-        console.log(e);
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            resolve(xhr.response)
+          }
+        }
+        xhr.send();
       }
     });
+
+    promise
+      .then((response) => {
+        this.goods = JSON.parse(response);
+        this.render('.goods-list');
+        this.summ();
+        this.goodsSelect('.goods-item');
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   render(selector = 'body') {
@@ -47,11 +54,15 @@ class GoodsList {
     goodList.insertAdjacentHTML('afterbegin', listHtml);
   }
 
-  summ(selector = 'body') {
+  summ() {
     let sum = 0;
     this.goods.forEach(({ price }) => {
       sum += price;
+      this.renderButton('.header', sum);
     });
+  }
+
+  renderButton(selector = 'body', sum) {
     const header = document.querySelector(selector);
     header.insertAdjacentHTML('afterbegin', `<div class="sum-goods">Суммарная стоимость всех товаров: ${sum} &euro; </div>`);
   }
@@ -91,8 +102,8 @@ class Cart {
     this.cart.push(items);
     //console.log(this.cart.length);
     const cartButton = document.querySelector('.cart-button');
-    console.log (this.cart);
-    this.cart.forEach ((item) => {
+    console.log(this.cart);
+    this.cart.forEach((item) => {
       count += parseFloat(item.price);
     });
     cartButton.innerHTML = `Товаров в корзине: ${this.cart.length} на сумму: ${count} &euro;`;
@@ -100,5 +111,5 @@ class Cart {
 }
 
 window.onload = () => {
-  new GoodsList().fetchGoods();
+  new GoodsList('GET', './JSON/goods.json').fetchGoods();
 };
